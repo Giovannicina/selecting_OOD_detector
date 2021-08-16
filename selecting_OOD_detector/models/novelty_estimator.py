@@ -12,12 +12,17 @@ class NoveltyEstimator(ABC):
     Abstract class to be implemented by each model. Has two functions to be implemented: train and get_novelty_score
     """
 
-    def __init__(self, model_type=None, model_params=None, train_params=None, method_name=""):
+    def __init__(self,
+                 model_type="density_estimator"):
+        """
+        Parameters
+        ----------
+        model_type: str
+            Model type indicates whether the novelty estimator predicts labels ("discriminator") or
+            learns density of features ("density_estimator")
+        """
+        assert model_type in ["discriminator", "density_estimator"]
         self.model_type = model_type
-        self.name = method_name
-        self.model_params = model_params
-        self.train_params = train_params
-        self.model = None
 
     @abstractmethod
     def train(self,
