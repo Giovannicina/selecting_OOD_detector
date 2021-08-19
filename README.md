@@ -40,7 +40,7 @@ X_under18 = pd.DataFrame(np.random.rand(12, n_features))
 X_covid = pd.DataFrame(np.random.rand(7, n_features))
 
 ood_groups = {"Patients under 18 years": X_under18,
-			  "COVID-19 patients": X_covid}
+	      "COVID-19 patients": X_covid}
 			  
 ```
 
