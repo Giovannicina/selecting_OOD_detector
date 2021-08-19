@@ -1,0 +1,15 @@
+jupyter
+gpytorch~=1.4.0
+git+https://github.com/y0ast/DUE.git
+numpy~=1.19.2
+torch~=1.8.1
+tqdm~=4.60.0
+pandas~=1.2.4
+shap~=0.39.0
+sklearn~=0.0
+seaborn~=0.11.1
+matplotlib~=3.4.1
+nflows
+statannot~=0.2.3
+scikit-learn~=0.24.1
+scipy~=1.6.2
