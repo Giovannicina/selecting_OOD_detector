@@ -30,8 +30,8 @@ First, define the in-distribution and OOD data:
 import pandas as pd
 import numpy as np
 
-n_features = 15
 # Define training and testing in-distribution data
+n_features = 15
 X_train = pd.DataFrame(np.random.rand(80, n_features))
 X_test = pd.DataFrame(np.random.rand(20, n_features))
 
