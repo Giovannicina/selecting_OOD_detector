@@ -6,14 +6,14 @@ Out-of-distribution (OOD) detection is one of the crucial safety checks for reli
 This repository allows you to test and tailor OOD detection methods to custom dataset and select the best OOD detector for your application.  
 
 ### Why is OOD detection important?
-Machine learning models have achieved great performance on variety of tasks. However, models assume that new samples are similar to data they have been trained on and their performance degrades rapidly when this assumption is violated.
+Machine learning models have achieved great performance on variety of tasks. However, models assume that new samples are similar to data they have been trained on and their performance can degrade rapidly when this assumption is violated.
 
 
 ### Implemented OOD detection methods
-* Autoencoder (`AE`; Bishop 1999;) with reconstruction error metric
+* Autoencoder (`AE`) with reconstruction error metric
 * Variational Autoencoder (`VAE`; Kingma & Welling, 2014) with reconstruction error or log probability metric
 * Spectral Normalized Gaussian Process (Deterministic Uncertainty Estimator `DUE`; Amersfoort et al., 2021) with standard deviation metric
-* Masked Autoregressive Flow (`Flow`) with log probability metric
+* Masked Autoregressive Flow (`Flow`, Papamakarios et al., 2017) with log probability metric
 * Probabilistic PCA (`PPCA`; Bishop et al., 1999) with log probability metric 
 * Local Outlier Factor (`LOF`; de Vries et al., 2010) with outlier score 
 
