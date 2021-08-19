@@ -45,6 +45,7 @@ class OODPipeline(BasePipeline):
         super().__init__(**kwargs)
         self.in_domain_scores = defaultdict(dict)
         self.out_domain_scores = defaultdict(dict)
+        self.feature_names = None
 
     def fit(self,
             X_train,
@@ -70,6 +71,9 @@ class OODPipeline(BasePipeline):
         """
         y_train = kwargs.get("y_train", None)
         n_trials = kwargs.get("n_trials", 5)
+
+        assert list(X_train.columns) == list(X_test.columns), "Train and test data have different features!"
+        self.feature_names = list(X_train.columns)
 
         print("--- OOD Pipeline ---")
         print("1/2 Fitting novelty estimators...")
@@ -107,6 +111,10 @@ class OODPipeline(BasePipeline):
         assert self.novelty_estimators, "Novelty estimator dictionary is empty." \
                                         "Please fit novelty estimators to in-distribution data before calling" \
                                         "evaluate_ood_groups."
+
+        assert all([list(X_ood.columns) == self.feature_names for _, X_ood in ood_groups.items()]), \
+            "All OOD groups must have identical features to in-distribution data!"
+
         out_domain_scores = self._score_out_domain(ood_groups)
         self.out_domain_scores.update(out_domain_scores)
 
