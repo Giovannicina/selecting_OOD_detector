@@ -19,8 +19,8 @@ def score_dataset(X: pd.DataFrame,
     models_trials_dict: dict
          Nested dictionary of novelty estimators. Contains 1 or more trials.
          Example of a dictionary containing 2 trials:
-                  {"0": {"AE": NoveltyEstimators, "VAE": NoveltyEstimator},
-                  "1": {"AE": NoveltyEstimators, "VAE": NoveltyEstimator}}
+                  {"0": {"AE": NoveltyEstimator, "VAE": NoveltyEstimator},
+                  "1": {"AE": NoveltyEstimator, "VAE": NoveltyEstimator}}
     Returns
     -------
     scores: dict
@@ -30,7 +30,7 @@ def score_dataset(X: pd.DataFrame,
 
     scores = dict()
 
-    for model_name in next(iter(models_trials_dict.values())).keys():
+    for model_name in list(models_trials_dict.values())[0]:
         scores[model_name] = np.array([
             models_trials_dict[i][model_name].get_novelty_score(X)
             for i in range(len(models_trials_dict))
@@ -86,7 +86,7 @@ def average_values_in_nested_dict(nested_dict):
     Parameters
     ----------
     nested_dict: dict
-        A dictionary of the following structure: {"Outer Key 1": {"Inner Key 1": [0.5, 0.6, 0.7}}
+        A dictionary of the following structure: {"Outer Key 1": {"Inner Key 1": [0.5, 0.6, 0.7]}}
 
     Returns
     -------
