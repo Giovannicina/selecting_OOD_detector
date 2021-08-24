@@ -17,6 +17,15 @@ IMPLEMENTED_MODELS = {
     "VAE": VAE,
 }
 
+SCORING_FUNCTIONS = {
+    "AE": "Reconstr Err",
+    "DUE": "Standard Dev",
+    "Flow": "Negative Log Prob",
+    "LOF": "Outlier Score",
+    "PPCA": "Negative Log Prob",
+    "VAE":  "Reconstr Err",
+}
+
 HYPERPARAMETERS_MODEL_INIT = {
     "AE":
         {
