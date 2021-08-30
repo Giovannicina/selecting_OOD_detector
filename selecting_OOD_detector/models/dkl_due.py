@@ -161,7 +161,7 @@ class DUE(NoveltyEstimator):
 
         return likelihood
 
-    def _predict_proba(self,
+    def predict_proba(self,
                        X: np.ndarray):
         """
         Returns probabilities for each class.
