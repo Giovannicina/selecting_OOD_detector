@@ -1,3 +1,5 @@
+import os
+import json
 import pandas as pd
 import numpy as np
 
@@ -38,3 +40,11 @@ def check_and_convert_dfs_to_numpy(dfs, allow_empty=True):
             raise ValueError(f"Unknown data type provided: {type(df)}.")
 
     return arrays
+
+
+def save_dictionary_as_json(dictn, save_name, save_dir):
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    with open(f"{save_dir}/{save_name}.json", "w") as result_file:
+        result_file.write(json.dumps(dictn, indent=4, default=str))
