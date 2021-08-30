@@ -54,6 +54,8 @@ class OODPipeline(BasePipeline):
     def fit(self,
             X_train,
             X_test,
+            hyperparameters_dir: Optional[str] = None,
+            n_trials: int = 5,
             **kwargs):
         """
         Fits models on training data with n_trials different runs.  Novelty estimators from each run are stored
@@ -67,21 +69,23 @@ class OODPipeline(BasePipeline):
         X_test: pd.DataFrame
             Test in-distribution data. Used to calculate self.in_domain_scores which are taken as base novelty scores
             for the dataset and used for comparison against OOD groups later.
+        hyperparameters_dir: Optional(str)
+            Directory with saved hyperparameters in a json file. See (HyperparameterTuner). If no directory is provided,
+            uses the default values.
+        n_trials: int
+            Number of independent initializations to run. Each run saves trained models.
         kwargs:
             y_train: pd.DataFrame
                 Labels corresponding to training data.
-            n_trials: int
-                Number of trials to run.
         """
         y_train = kwargs.get("y_train", None)
-        n_trials = kwargs.get("n_trials", 5)
 
         assert list(X_train.columns) == list(X_test.columns), "Train and test data have different features!"
         self.feature_names = list(X_train.columns)
 
         print("--- OOD Pipeline ---")
         print("1/2 Fitting novelty estimators...")
-        self._fit(X_train=X_train, y_train=y_train, n_trials=n_trials)
+        self._fit(X_train=X_train, y_train=y_train, n_trials=n_trials, hyperparameters_dir=hyperparameters_dir)
 
         print("2/2 Scoring in-domain data...")
         self.in_domain_scores = self._score_in_domain(X_test)
