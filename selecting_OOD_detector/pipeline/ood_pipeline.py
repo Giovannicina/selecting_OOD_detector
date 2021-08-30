@@ -5,9 +5,12 @@ import pandas as pd
 from selecting_OOD_detector.pipeline.base import BasePipeline
 from selecting_OOD_detector.utils.scores_metrics import (score_dataset,
                                                          get_ood_aucs_score_for_all_models,
-                                                         average_values_in_nested_dict
+                                                         average_values_in_nested_dict,
+                                                         get_mean_stderr_annots_in_nested_dict
                                                          )
 from selecting_OOD_detector.utils.general import check_and_convert_dfs_to_numpy
+from selecting_OOD_detector.utils.plotting import plot_heatmap, plot_scores_boxplot, plot_scores_distr
+from selecting_OOD_detector.models.novelty_estimators_info import SCORING_FUNCTIONS
 
 
 class OODPipeline(BasePipeline):
@@ -17,6 +20,7 @@ class OODPipeline(BasePipeline):
 
 
     Example of usage:
+
         # Initialize the pipeline
         oodpipeline = OODPipeline()
 
@@ -123,6 +127,182 @@ class OODPipeline(BasePipeline):
 
         return out_domain_scores
 
+    def get_auc_scores(self,
+                       ood_groups_selections: Optional[list] = None,
+                       return_averaged: bool = True):
+        """
+        Computes AUC-ROC scores of OOD detection for each OOD group as compared to the in-distribution test data.
+        By default, returns scores for every group evaluated by the pipeline (evaluate_ood_groups).
+
+        Parameters
+        ----------
+        ood_groups_selections: Optional(list)
+            Optionally provide a selection of OOD groups for which AUC-ROC score should be returned. If no selection
+            is provided, all groups ever evaluate by the pipeline will be included.
+        return_averaged: bool
+            Indicates whether to return averaged AUC-ROC scores over n_trials run or a list of scores for every trial.
+
+        Returns
+        -------
+        aucs_dict_groups: dict
+            A nested dictionary that contains a name of OOD group, name of novelty estimator and either a float (if
+            averaged) or a list of AUC-ROC scores.
+
+        """
+        selected_ood_group = self._filter_ood_groups(ood_groups_selections)
+        aucs_dict_groups = defaultdict(lambda: defaultdict(list))
+
+        for ood_group_name in selected_ood_group:
+            aucs_dict_groups[ood_group_name] = get_ood_aucs_score_for_all_models(
+                ood_scores_trials_dict=self.out_domain_scores[ood_group_name],
+                test_scores_trials_dict=self.in_domain_scores,
+            )
+
+        if return_averaged:
+            return average_values_in_nested_dict(aucs_dict_groups)
+
+        return aucs_dict_groups
+
+    def plot_auc_scores(self,
+                        ood_groups_selections: Optional[list] = None,
+                        show_stderr: bool = True,
+                        save_dir: str = None,
+                        **plot_kwargs):
+        """
+        Plots a heatmap of AUC-ROC scores of OOD detection for each OOD group as compared to
+        the in-distribution test data.
+
+        Parameters
+        ----------
+        ood_groups_selections: Optional(list)
+            Optionally provide a selection of OOD groups for which AUC-ROC score should be returned. If no selection
+            is provided, all groups ever evaluate by the pipeline will be included.
+        show_stderr: Optional(bool)
+            If True (default), annotates the heatmpa with means and standard error (calculated using jacknife
+            resampling). Else, plots the mean values only.
+        save_dir: Optional(str)
+            If a path to a directory is provided, saves plots for each OOD group separately.
+        plot_kwargs:
+            Other arguments to be passed to sns.heatmap function.
+        """
+
+        auc_scores = self.get_auc_scores(ood_groups_selections=ood_groups_selections,
+                                         return_averaged=show_stderr)
+        if not show_stderr:
+            annots = get_mean_stderr_annots_in_nested_dict(auc_scores)
+            annots = pd.DataFrame(annots).values.T
+            auc_scores = average_values_in_nested_dict(auc_scores)
+            plot_fmt = "s"
+
+        else:
+            annots = True
+            plot_fmt = ".2g"
+
+        plot_df = pd.DataFrame(auc_scores)
+
+        plot_heatmap(plot_df,
+                     title="AUC",
+                     save_dir=save_dir,
+                     annot=annots,
+                     fmt=plot_fmt,
+                     annot_kws={"fontsize": 9},
+                     figsize=(12, 0.75 * len(plot_df.columns)),
+                     **plot_kwargs,
+                     )
+
+    def plot_score_distr(self,
+                         ood_groups_selections: Optional[list] = None,
+                         save_dir=None
+                         ):
+        """
+        Plots histograms for each OOD group as compared to the in-distribution test data.
+        To avoid outliers from skewing the distributions on the plots to the left,
+        clips values of novely scores to 0-95% range of in-distribution novelty scores.
+
+        Parameters
+        ----------
+        ood_groups_selections: Optional(list)
+            Optionally provide a selection of OOD groups for which AUC-ROC score should be returned. If no selection
+            is provided, all groups ever evaluate by the pipeline will be included.
+        save_dir: Optional(str)
+            If a path to a directory is provided, saves plots for each OOD group separately.
+        """
+        out_domain_scores_mean = average_values_in_nested_dict(self.out_domain_scores, axis=0, dict_level=2)
+        in_domain_scores_mean = average_values_in_nested_dict(self.in_domain_scores, axis=0, dict_level=1)
+
+        selected_ood_group = self._filter_ood_groups(ood_groups_selections)
+
+        for ood_name in selected_ood_group:
+            ood_scores = out_domain_scores_mean[ood_name]
+            save_group_name = ood_name.lower().replace(" ", "_")
+
+            if save_dir is not None:
+                save_dir_ = f"{save_dir}_{save_group_name}.png"
+            else:
+                save_dir_ = None
+
+            plot_scores_distr(scores_test=in_domain_scores_mean,
+                              scores_new=ood_scores,
+                              title=ood_name,
+                              clip_q=0.05,
+                              kind="hist",
+                              bins=30,
+                              save_dir=save_dir_,
+                              labels=SCORING_FUNCTIONS)
+
+    def plot_box_plot(self,
+                      ood_groups_selections: Optional[list] = None,
+                      save_dir=None
+                      ):
+        """
+        Plots boxplots for each OOD group as compared to the in-distribution test
+                  data. Adds statistical annotation of difference significance
+                  under Mann-Whitney one sided test using `statannot` package.
+                  p-values: **** 𝑝 < 0.0001; *** 𝑝 < 0.001; ** 𝑝 < 0.01; * 𝑝 < 0.05; else ns
+
+        Parameters
+        ----------
+        ood_groups_selections: Optional(list)
+            Optionally provide a selection of OOD groups for which AUC-ROC score should be returned. If no selection
+            is provided, all groups ever evaluate by the pipeline will be included.
+        save_dir: Optional(str)
+            If a path to a directory is provided, saves plots for each OOD group separately.
+        """
+
+        out_domain_scores_mean = average_values_in_nested_dict(self.out_domain_scores, axis=0, dict_level=2)
+        in_domain_scores_mean = average_values_in_nested_dict(self.in_domain_scores, axis=0, dict_level=1)
+
+        selected_ood_group = self._filter_ood_groups(ood_groups_selections)
+
+        for ood_name in selected_ood_group:
+            ood_scores = out_domain_scores_mean[ood_name]
+
+            if save_dir is not None:
+                save_dir_ = f"{save_dir}_{ood_name}.png"
+            else:
+                save_dir_ = None
+
+            plot_scores_boxplot(scores_test=in_domain_scores_mean,
+                                scores_new=ood_scores,
+                                show_outliers=True,
+                                title=ood_name,
+                                return_results=False,
+                                save_dir=save_dir_)
+
+    def _filter_ood_groups(self, ood_groups_selections: Optional[list]):
+        """
+        Checks user-provided names of OOD groups and raises error if these groups were not evaluated yet.
+        If no selection is provided, returns all available OOD group names.
+        """
+        if ood_groups_selections is not None:
+            assert all([ood_group_name in self.out_domain_scores for ood_group_name in ood_groups_selections]), \
+                "Please evaluate these OOD groups first before calculating AUC-ROC scores"
+            selected_ood_group = self.out_domain_scores.keys() & ood_groups_selections
+        else:
+            selected_ood_group = self.out_domain_scores.keys()
+
+        return selected_ood_group
+
     def _score_in_domain(self,
                          X_test: pd.DataFrame):
         """
@@ -147,46 +327,3 @@ class OODPipeline(BasePipeline):
             print("done.")
 
         return out_domain_scores
-
-    def get_ood_aucs_scores(self,
-                            ood_groups_selections: Optional[list] = None,
-                            return_averaged: bool = True):
-        """
-        Computes AUC-ROC scores of OOD detection for each OOD group as compared to the in-distribution test data.
-        By default, returns scores for every group evaluated by the pipeline (evaluate_ood_groups).
-
-        Parameters
-        ----------
-        ood_groups_selections: Optional(list)
-            Optionally provide a selection of OOD groups for which AUC-ROC score should be returned. If no selection
-            is provided, all groups ever evaluate by the pipeline will be included.
-        return_averaged: bool
-            Indicates whether to return averaged AUC-ROC scores over n_trials run or a list of scores for every trial.
-
-        Returns
-        -------
-        aucs_dict_groups: dict
-            A nested dictionary that contains a name of OOD group, name of novelty estimator and either a float (if
-            averaged) or a list of AUC-ROC scores.
-
-        """
-        if ood_groups_selections is not None:
-            assert all([ood_group_name in self.out_domain_scores for ood_group_name in ood_groups_selections]), \
-                "Please evaluate some OOD groups first before calculating AUC-ROC scores"
-            selected_ood_group = self.out_domain_scores.keys() & ood_groups_selections
-
-        else:
-            selected_ood_group = self.out_domain_scores.keys()
-
-        aucs_dict_groups = defaultdict(lambda: defaultdict(list))
-
-        for ood_group_name in selected_ood_group:
-            aucs_dict_groups[ood_group_name] = get_ood_aucs_score_for_all_models(
-                ood_scores_trials_dict=self.out_domain_scores[ood_group_name],
-                test_scores_trials_dict=self.in_domain_scores,
-            )
-
-        if return_averaged:
-            return average_values_in_nested_dict(aucs_dict_groups)
-
-        return aucs_dict_groups

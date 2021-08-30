@@ -9,7 +9,8 @@ shap~=0.39.0
 sklearn~=0.0
 seaborn~=0.11.1
 matplotlib~=3.4.1
-nflows
+nflows~=0.14
 statannot~=0.2.3
 scikit-learn~=0.24.1
 scipy~=1.6.2
+astropy~=4.3.1
