@@ -94,6 +94,7 @@ HYPERPARAMETERS_SEARCH_GRID = {
     "features": [64, 128, 256, 512, 1028],
     "depth": range(4, 8),
     "n_components": range(2, 20),
+    "n_neighbors": range(2, 20),
     "hidden_sizes": [
         [hidden_size] * num_layers
         for hidden_size in [25, 30, 50, 75, 100]

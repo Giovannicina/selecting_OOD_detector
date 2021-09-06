@@ -4,9 +4,7 @@ import pickle
 
 import pandas as pd
 
-from selecting_OOD_detector.models.novelty_estimators_info import (IMPLEMENTED_MODELS,
-                                                                   HYPERPARAMETERS_TRAINING,
-                                                                   HYPERPARAMETERS_MODEL_INIT)
+from selecting_OOD_detector.models.novelty_estimators_info import (IMPLEMENTED_MODELS)
 from selecting_OOD_detector.utils.general import check_and_convert_dfs_to_numpy
 
 
@@ -75,10 +73,10 @@ def train_novelty_estimator(
 
 def get_novelty_estimators(
         X_train: pd.DataFrame,
+        hyperparameters_init: dict,
+        hyperparameters_train: dict,
         y_train: pd.DataFrame = None,
         model_selection: set = None,
-        hyperparameters_init: dict = HYPERPARAMETERS_MODEL_INIT,
-        hyperparameters_training: dict = HYPERPARAMETERS_TRAINING,
         saved_model_dir: Optional[str] = None
 ):
     """
@@ -95,7 +93,7 @@ def get_novelty_estimators(
             models are used.
         hyperparameters_init: dict
             Hyperparameters used to initialize each model.
-        hyperparameters_training: dict
+        hyperparameters_train: dict
             Hyperparameters used to train each model.
         saved_model_dir: Optional(str)
             If a path to saved models is provided, skips training and uses pre-trained model.
@@ -122,7 +120,7 @@ def get_novelty_estimators(
         # If no directory with saved models is provided or loading model was not successful, train it
         if saved_model_dir is None or ne is None:
             init_params = hyperparameters_init[model_name]
-            train_params = hyperparameters_training[model_name]
+            train_params = hyperparameters_train[model_name]
 
             ne = train_novelty_estimator(X_train=X_train,
                                          y_train=y_train,
