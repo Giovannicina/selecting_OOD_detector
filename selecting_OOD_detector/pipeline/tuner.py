@@ -26,7 +26,6 @@ class HyperparameterTuner:
 
     def __init__(self,
                  hyperparameter_search_grid: Optional[dict] = None,
-                 hyperparameters_names: Optional[dict] = None,
                  train_params: dict = None,
                  model_selection: Optional[set] = None,
                  num_evals_per_model: int = 20,
@@ -38,11 +37,6 @@ class HyperparameterTuner:
             A dictionary that specifies all possible values of hyperparameters for all models to be evaluated.
             Example:   {"kernel": ["RFB", "Matern12", "Matern32", "Matern52", "RQ"],
                        "n_inducing_points": range(10, 20)}
-        hyperparameters_names: dict[list]
-            A dictionary of lists with strings that specifies the names of parameters that each model uses for
-            initialization.
-            Example:   {"AE": ["hidden_sizes", "latent_dim", "lr"],
-                        "PPCA": ["n_components"]}
         train_params: dict
             A dictionary that specifies hyperparameters used in the training function.
         model_selection: Optional(set)
@@ -50,16 +44,15 @@ class HyperparameterTuner:
         num_evals_per_model: int
             Number of evaluations to run for each model.
         """
-        # Initialize hyperparameter search grid and names of hyperparameters for each model
-        if hyperparameter_search_grid is None or hyperparameters_names is None:
+        # Initialize hyperparameter search grid
+        if hyperparameter_search_grid is None:
             self.hyperparameter_search_grid = HYPERPARAMETERS_SEARCH_GRID
-            self.hyperparameters_names = HYPERPARAMETERS_MODEL_INIT
         else:
-            assert hyperparameter_search_grid is not None and hyperparameters_names is not None, \
-                "When providing custom hyperparameter search grid, please specify hyperparameter names " \
-                "to be used by each model as well."
             self.hyperparameter_search_grid = hyperparameter_search_grid
-            self.hyperparameters_names = hyperparameters_names
+
+        # Initialize a dictionary with hyperparameter names for each model used to
+        # distinguish which model uses which hyperparameters for initialization and training
+        self.hyperparameters_names = HYPERPARAMETERS_MODEL_INIT
 
         # Initialize training hyperparameters
         if train_params is None:
