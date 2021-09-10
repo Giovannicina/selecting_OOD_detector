@@ -1,9 +1,28 @@
 
 # Selecting OOD Detector
 
+## Your How-To Guide for OOD Detection
+
 Out-of-distribution (OOD) detection is one of the crucial safety checks for reliable deployment of machine learning models.  However, while it is a standard practice to tailor predictive models to a specific task, there is no universal way of testing OOD detection methods in practice.
 
+<img src="https://raw.githubusercontent.com/Giovannicina/selecting_OOD_detector/docs/docs/img/1_TyogHTgvJx8mTemKYHJ0cg.png?token=ANKC3TFV7QTA3NSUX3C4UO3BGYLUO" 
+     style="height: 120;"/>
+
 This repository allows you to test and tailor OOD detection methods to custom dataset and select the best OOD detector for your application.  
+
+## Table of Contents
+- [Selecting OOD Detector](#selecting-ood-detector)
+  * [About](#about)
+    + [Why is OOD detection important?](#why-is-ood-detection-important-)
+    + [Implemented OOD detection methods](#implemented-ood-detection-methods)
+  * [Examples](#examples)
+    + [Detecting Clinically Relevant OOD Groups](#detecting-clinically-relevant-ood-groups)
+    + [Fine-Tuning Hyperparmeters on a New Dataset](#fine-tuning-hyperparmeters-on-a-new-dataset)
+  * [Usage](#usage)
+  * [References](#references)
+
+
+## About
 
 ### Why is OOD detection important?
 Machine learning models have achieved great performance on variety of tasks. However, models assume that new samples are similar to data they have been trained on and their performance can degrade rapidly when this assumption is violated.
@@ -18,7 +37,8 @@ Machine learning models have achieved great performance on variety of tasks. How
 * Local Outlier Factor (`LOF`; de Vries et al., 2010) with outlier score 
 
 
-## Example of Usage: Under 18 and COVID-19 Patients
+## Examples
+### Detecting Clinically Relevant OOD Groups
 
 This example shows how to test OOD detectors on two groups using dummy variables of
 * patients under 18 years
@@ -72,16 +92,124 @@ auc_scores = oodpipe.get_ood_aucs_scores(return_averaged=True)
 
 AUC-ROC score of 1 would indicate perfect separation of an OOD group from testing data while score of 0.5 suggests that models are unable to detect which samples are in- and out-of-distribution.
 
+
+### Fine-Tuning Hyperparmeters on a New Dataset
+
+This example shows how to perform hyperparameter search for each
+dataset.
+
+First, split your data into training, testing, and validation:
+
+```py
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+n_features = 32
+n_samples = 150
+X = pd.DataFrame(np.random.rand(n_samples, n_features))
+y = np.random.binomial(n=1, p=0.95, size=[n_samples])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train)
+```
+
+
+
+Next, initialize `HyperparameterTuner`:
+
+```py
+from selecting_OOD_detector.pipeline.tuner import HyperparameterTuner
+
+hyperparm_tuner = HyperparameterTuner(num_evals_per_model=5)
+```
+
+
+
+Run the hyperparameter search with the HyperparameterTuner. Note that
+intermediate results can be saved during the run:
+
+```py
+hyperparm_tuner.run_hyperparameter_search(X_train = X_train,
+                                          X_val=X_val,
+                                          y_train=y_train,
+                                          y_val=y_val,
+                                          save_intermediate_scores=True,
+                                          save_dir="hyperparameter_search_test/")
+```
+
+
+
+To get the best parameters, simply use `get_best_parameters` function:
+
+```py
+hyperparm_tuner.get_best_parameteres()
+```
+
+``` {.sourceCode .py}
+{
+  'AE': {   'hidden_sizes': [50, 50],
+            'input_size': 32,
+            'latent_dim': 15,
+            'lr': 0.01},
+  'DUE': {   'coeff': 1,
+             'depth': 4,
+             'features': 512,
+             'input_size': 32,
+             'kernel': 'Matern52',
+             'lr': 0.1,
+             'n_inducing_points': 11},
+  'Flow': {   'batch_norm_between_layers': True,
+              'hidden_features': 128,
+              'input_size': 32,
+              'lr': 0.01,
+              'num_layers': 15},
+  'LOF': {    'input_size': 32, 
+              'n_neighbors': 19},
+  'PPCA': {  'input_size': 32,
+             'n_components': 3},
+  'VAE': {   'anneal': True,
+             'beta': 1.786466646725514,
+             'hidden_sizes': [30, 30, 30],
+             'input_size': 32,
+             'latent_dim': 5,
+             'lr': 0.1,
+             'reconstr_error_weight': 0.14695309349947033}
+ }
+```
+
+You can save these best parameters and use them in the OODPipeline
+later:
+
+```py
+tuner.save_best_parameters_as_json(save_dir = "../data/hyperparameters/custom/")
+```
+
+```py
+from selecting_OOD_detector.pipeline.ood_pipeline import OODPipeline
+
+# Initialize the pipeline
+oodpipe = OODPipeline()
+
+# Use the custom hyperparameters that were just saved
+oodpipe.fit(X_train, X_test=X_test, hyperparameters_dir="../data/hyperparameters/custom/")
+```
+
+
 ## Usage
 
-```
-git clone https://github.com/Giovannicina/selecting_OOD_detector.git 
-cd selecting_OOD_detector
-pip install -r requirements.txt
+    git clone https://github.com/Giovannicina/selecting_OOD_detector.git 
+    cd selecting_OOD_detector
+    pip install -r requirements.txt
+    
+Append a path to the directory:
+
+```py
 sys.path.append(os.getcwd())
 ```
+	
+Import OOD pipeline and apply to your data as shown in the example
+above:
 
-Import OOD pipeline and apply to your data as shown in the example above:
 ```py
 from selecting_OOD_detector.pipeline.ood_pipeline import OODPipeline
 ```
