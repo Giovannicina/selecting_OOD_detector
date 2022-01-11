@@ -1,6 +1,6 @@
 """
 A module with helper functions for running a hyperparameter search.
-Code adopted form https://github.com/Pacmed/ehr_ood_detection/blob/master/src/experiments/hyperparameter_search.py
+Code adapted from https://github.com/Pacmed/ehr_ood_detection/blob/master/src/experiments/hyperparameter_search.py
 """
 from typing import Optional
 import os
