@@ -3,12 +3,12 @@
 
 ## Your How-To Guide for OOD Detection
 
-Out-of-distribution (OOD) detection is one of the crucial safety checks for reliable deployment of machine learning models.  However, while it is a standard practice to tailor predictive models to a specific task, there is no universal way of testing OOD detection methods in practice.
+Out-of-distribution (OOD) detection is one of the crucial safety checks for the reliable deployment of machine learning models.  However, while it is a standard practice to tailor predictive models to a specific task, there is no universal way of testing OOD detection methods in practice.
 
 <!-- <img src="https://raw.githubusercontent.com/Giovannicina/selecting_OOD_detector/docs/docs/img/1_TyogHTgvJx8mTemKYHJ0cg.png?token=ANKC3TFV7QTA3NSUX3C4UO3BGYLUO" 
      style="height: 120;"/> -->
 
-This repository allows you to test and tailor OOD detection methods to custom dataset and select the best OOD detector for your application.  
+This repository allows you to test and tailor OOD detection methods to a custom dataset and select the best OOD detector for your application.  
 
 ## Table of Contents
 - [Selecting OOD Detector](#selecting-ood-detector)
@@ -25,7 +25,7 @@ This repository allows you to test and tailor OOD detection methods to custom da
 ## About
 
 ### Why is OOD detection important?
-Machine learning models have achieved great performance on variety of tasks. However, models assume that new samples are similar to data they have been trained on and their performance can degrade rapidly when this assumption is violated.
+Machine learning models have achieved great performance on a variety of tasks. However, models assume that new samples are similar to data they have been trained on and their performance can degrade rapidly when this assumption is violated.
 
 
 ### Implemented OOD detection methods
@@ -76,7 +76,7 @@ oodpipe = OODPipeline()
 oodpipe.fit(X_train, X_test=X_test)
 
 # Compute novelty scores of the defined OOD groups
-oodpipe.evaluate_ood_groups(ood_groups)
+oodpipe.evaluate_ood_groups(ood_groups, n_trials=3)
 
 ```
 
@@ -90,12 +90,12 @@ auc_scores = oodpipe.get_ood_aucs_scores(return_averaged=True)
 | Patients Under 18 | 0.513 | 0.552 | 0.493 | 0.489| 0.514 | 0.654 |
 | COVID-19 patients | 0.525    | 0.631     | 0.567         | 0.567 | 0.474     | 0.553 |
 
-AUC-ROC score of 1 would indicate perfect separation of an OOD group from testing data while score of 0.5 suggests that models are unable to detect which samples are in- and out-of-distribution.
+AUC-ROC score of 1 would indicate perfect separation of an OOD group from testing data while a score of 0.5 suggests that models are unable to detect which samples are in- and out-of-distribution.
 
 
-### Fine-Tuning Hyperparmeters on a New Dataset
+### Fine-Tuning Hyperparameters on a New Dataset
 
-This example shows how to perform hyperparameter search for each
+This example shows how to perform a hyperparameter search for each
 dataset.
 
 First, split your data into training, testing, and validation:
