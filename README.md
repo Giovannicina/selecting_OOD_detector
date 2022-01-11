@@ -5,8 +5,8 @@
 
 Out-of-distribution (OOD) detection is one of the crucial safety checks for reliable deployment of machine learning models.  However, while it is a standard practice to tailor predictive models to a specific task, there is no universal way of testing OOD detection methods in practice.
 
-<img src="https://raw.githubusercontent.com/Giovannicina/selecting_OOD_detector/docs/docs/img/1_TyogHTgvJx8mTemKYHJ0cg.png?token=ANKC3TFV7QTA3NSUX3C4UO3BGYLUO" 
-     style="height: 120;"/>
+<!-- <img src="https://raw.githubusercontent.com/Giovannicina/selecting_OOD_detector/docs/docs/img/1_TyogHTgvJx8mTemKYHJ0cg.png?token=ANKC3TFV7QTA3NSUX3C4UO3BGYLUO" 
+     style="height: 120;"/> -->
 
 This repository allows you to test and tailor OOD detection methods to custom dataset and select the best OOD detector for your application.  
 
