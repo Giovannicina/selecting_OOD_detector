@@ -62,10 +62,10 @@ class BasePipeline(ABC):
         if path is None:
             path = "../data/hyperparameters/default/"
 
-        with open(os.path.join(path, "init"), 'rb') as file:
+        with open(os.path.join(path, "init.json"), 'rb') as file:
             hyperparameters_init = json.load(file)
 
-        with open(os.path.join(path, "train"), 'rb') as file:
+        with open(os.path.join(path, "train.json"), 'rb') as file:
             hyperparameters_train = json.load(file)
 
         return hyperparameters_init, hyperparameters_train

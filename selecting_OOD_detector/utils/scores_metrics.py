@@ -3,7 +3,7 @@ from typing import Optional
 
 import pandas as pd
 import numpy as np
-from astropy.stats import jackknife_stats
+# from astropy.stats import jackknife_stats
 
 from selecting_OOD_detector.utils.general import check_and_convert_dfs_to_numpy
 from sklearn.metrics import roc_auc_score
@@ -147,27 +147,27 @@ def get_mean_stderr_annots_in_nested_dict(nested_dict,
 
     means_errors = defaultdict(lambda: defaultdict(list))
 
-    # Dictionary with depth level 1
-    if dict_level == 1:
-        for inner_key, inner_value in nested_dict.items():
-            mean, _, stderr, _ = jackknife_stats(np.array(inner_value), np.mean)
-
-            if as_string:
-                means_errors[inner_key] = f"{np.round(mean, 3)} ± {np.round(stderr, 3)}"
-
-            else:
-                means_errors[inner_key] = [mean, stderr]
-
-    #  Dictionary with depth level 2
-    else:
-        for outter_key, outter_value in nested_dict.items():
-            for inner_key, inner_value in outter_value.items():
-                mean, _, stderr, _ = jackknife_stats(np.array(inner_value), np.mean)
-
-                if as_string:
-                    means_errors[outter_key][inner_key] = f"{np.round(mean, 3)} ± {np.round(stderr, 3)}"
-
-                else:
-                    means_errors[outter_key][inner_key] = [mean, stderr]
+    # # Dictionary with depth level 1
+    # if dict_level == 1:
+    #     for inner_key, inner_value in nested_dict.items():
+    #         mean, _, stderr, _ = jackknife_stats(np.array(inner_value), np.mean)
+    #
+    #         if as_string:
+    #             means_errors[inner_key] = f"{np.round(mean, 3)} ± {np.round(stderr, 3)}"
+    #
+    #         else:
+    #             means_errors[inner_key] = [mean, stderr]
+    #
+    # #  Dictionary with depth level 2
+    # else:
+    #     for outter_key, outter_value in nested_dict.items():
+    #         for inner_key, inner_value in outter_value.items():
+    #             mean, _, stderr, _ = jackknife_stats(np.array(inner_value), np.mean)
+    #
+    #             if as_string:
+    #                 means_errors[outter_key][inner_key] = f"{np.round(mean, 3)} ± {np.round(stderr, 3)}"
+    #
+    #             else:
+    #                 means_errors[outter_key][inner_key] = [mean, stderr]
 
     return means_errors

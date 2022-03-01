@@ -193,10 +193,13 @@ class OODPipeline(BasePipeline):
         auc_scores = self.get_auc_scores(ood_groups_selections=ood_groups_selections,
                                          return_averaged=show_stderr)
         if not show_stderr:
-            annots = get_mean_stderr_annots_in_nested_dict(auc_scores)
-            annots = pd.DataFrame(annots).values.T
-            auc_scores = average_values_in_nested_dict(auc_scores)
-            plot_fmt = "s"
+            # annots = get_mean_stderr_annots_in_nested_dict(auc_scores)
+            # annots = pd.DataFrame(annots).values.T
+            # auc_scores = average_values_in_nested_dict(auc_scores)
+            # plot_fmt = "s"
+
+            annots = True
+            plot_fmt = ".2g"
 
         else:
             annots = True
@@ -205,12 +208,12 @@ class OODPipeline(BasePipeline):
         plot_df = pd.DataFrame(auc_scores)
 
         plot_heatmap(plot_df,
-                     title="AUC",
+                     title="AUC-ROC of OOD Detection",
                      save_dir=save_dir,
                      annot=annots,
                      fmt=plot_fmt,
-                     annot_kws={"fontsize": 9},
-                     figsize=(12, 0.75 * len(plot_df.columns)),
+                     annot_kws={"fontsize": 10},
+                     figsize=(10, 1.2 * len(plot_df.columns)),
                      **plot_kwargs,
                      )
 

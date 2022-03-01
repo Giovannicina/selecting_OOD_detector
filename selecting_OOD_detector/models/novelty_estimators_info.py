@@ -2,7 +2,7 @@ from scipy.stats import uniform
 from sklearn.utils.fixes import loguniform
 
 from selecting_OOD_detector.models.ae import AE
-from selecting_OOD_detector.models.dkl_due import DUE
+# from selecting_OOD_detector.models.dkl_due import DUE
 from selecting_OOD_detector.models.flow import Flow
 from selecting_OOD_detector.models.lof import LOF
 from selecting_OOD_detector.models.ppca import PPCA
@@ -10,7 +10,7 @@ from selecting_OOD_detector.models.vae import VAE
 
 IMPLEMENTED_MODELS = {
     "AE": AE,
-    "DUE": DUE,
+    # "DUE": DUE,
     "Flow": Flow,
     "LOF": LOF,
     "PPCA": PPCA,
