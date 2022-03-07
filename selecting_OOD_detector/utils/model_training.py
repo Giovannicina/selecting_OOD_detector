@@ -29,7 +29,7 @@ def load_novelty_estimator(
     """
     try:
         ne = pickle.load(open(os.path.join(saved_model_dir, model_name), 'rb'))
-        print(f"\t\tsuccesfully loaded {model_name}.")
+        # print(f"\t\tsuccesfully loaded {model_name}.")
         return ne
 
     except FileNotFoundError as e:
@@ -63,11 +63,11 @@ def train_novelty_estimator(
     -------
 
     """
-    print(f"\t\t{model_name}...", end=" ")
+    # print(f"\t\t{model_name}...", end=" ")
     init_params.update({"input_size": X_train.shape[1]})
     ne = IMPLEMENTED_MODELS[model_name](**init_params)
     ne.train(X_train, y_train=y_train, **train_params)
-    print(f"done.")
+    # print(f"done.")
     return ne
 
 
