@@ -13,16 +13,18 @@ This repository allows you to test and tailor OOD detection methods to a custom 
 ## Table of Contents
 - [Selecting OOD Detector](#selecting-ood-detector)
   * [About](#about)
-    + [Why is OOD detection important?](#why-is-ood-detection-important-)
+    + [Why is OOD detection important?](#why-is-ood-detection-important)
     + [Implemented OOD detection methods](#implemented-ood-detection-methods)
+  * [Usage](#usage)
   * [Examples](#examples)
     + [Detecting Clinically Relevant OOD Groups](#detecting-clinically-relevant-ood-groups)
     + [Fine-Tuning Hyperparmeters on a New Dataset](#fine-tuning-hyperparmeters-on-a-new-dataset)
-  * [Usage](#usage)
   * [References](#references)
 
+<br>
 
 ## About
+
 
 ### Why is OOD detection important?
 Machine learning models have achieved great performance on a variety of tasks. However, models assume that new samples are similar to data they have been trained on and their performance can degrade rapidly when this assumption is violated.
@@ -36,6 +38,33 @@ Machine learning models have achieved great performance on a variety of tasks. H
 * Probabilistic PCA (`PPCA`; Bishop et al., 1999) with log probability metric 
 * Local Outlier Factor (`LOF`; de Vries et al., 2010) with outlier score 
 
+<br>
+
+## Usage
+<!-- 
+    git clone https://github.com/Giovannicina/selecting_OOD_detector.git 
+    cd selecting_OOD_detector
+    pip install -r requirements.txt
+    
+Append a path to the directory:
+
+```py
+sys.path.append(os.getcwd())
+```
+	
+Import OOD pipeline and apply to your data as shown in the example
+above: -->
+
+```
+pip install git+https://github.com/Giovannicina/selecting_OOD_detector.git
+```
+
+```py
+from selecting_OOD_detector.pipeline.ood_pipeline import OODPipeline
+```
+
+<br>
+<br>
 
 ## Examples
 ### Detecting Clinically Relevant OOD Groups
@@ -95,6 +124,8 @@ auc_scores = oodpipe.get_ood_aucs_scores(return_averaged=True)
 
 AUC-ROC score of 1 would indicate perfect separation of an OOD group from testing data while a score of 0.5 suggests that models are unable to detect which samples are in- and out-of-distribution.
 
+<br>
+<br>
 
 ### Fine-Tuning Hyperparameters on a New Dataset
 
@@ -199,24 +230,24 @@ oodpipe.fit(X_train, X_test=X_test, hyperparameters_dir="../data/hyperparameters
 ```
 
 
-## Usage
-
-    git clone https://github.com/Giovannicina/selecting_OOD_detector.git 
-    cd selecting_OOD_detector
-    pip install -r requirements.txt
-    
-Append a path to the directory:
-
-```py
-sys.path.append(os.getcwd())
-```
-	
-Import OOD pipeline and apply to your data as shown in the example
-above:
-
-```py
-from selecting_OOD_detector.pipeline.ood_pipeline import OODPipeline
-```
 
 
 ## References
+
+```bib
+	@article{2021arXiv210914885Z,
+	       author = {{Zadorozhny}, Karina and {Thoral}, Patrick and {Elbers}, Paul and {Cin{\`a}}, Giovanni},
+		title = "{Out-of-Distribution Detection for Medical Applications: Guidelines for Practical Evaluation}",
+	      journal = {arXiv e-prints},
+	     keywords = {Computer Science - Machine Learning},
+		 year = 2021,
+		month = sep,
+		pages = {arXiv:2109.14885},
+	archivePrefix = {arXiv},
+	       eprint = {2109.14885},
+	 primaryClass = {cs.LG},
+	}
+
+```
+
+
