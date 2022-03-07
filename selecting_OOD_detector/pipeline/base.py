@@ -32,14 +32,20 @@ class BasePipeline(ABC):
              X_train: pd.DataFrame,
              y_train: pd.DataFrame = None,
              n_trials: int = 5,
-             hyperparameters_dir: Optional[str] = None
+             hyperparameters_dir: Optional[str] = None,
+             hyperparameters: dir = None,
              ):
         """
         Fits models on training data with n_trials different runs. Returns a nested dictionary with keys
         being the trial number.
         """
 
-        hyperparameters_init, hyperparameters_train = self._load_hyperparameters(path=hyperparameters_dir)
+        if hyperparameters_dir is not None:
+            hyperparameters_init, hyperparameters_train = self._load_hyperparameters(path=hyperparameters_dir)
+        elif hyperparameters is not None:
+            hyperparameters_init, hyperparameters_train = hyperparameters["init"], hyperparameters["train"]
+        else:
+            raise UserWarning("No hyperparameters provided")
 
         for i in range(n_trials):
             print(f"\n\n{i + 1}/{n_trials} trials:")

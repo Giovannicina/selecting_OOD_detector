@@ -55,6 +55,7 @@ class OODPipeline(BasePipeline):
             X_train,
             X_test,
             hyperparameters_dir: Optional[str] = None,
+            hyperparameters: Optional[dict] = None,
             n_trials: int = 5,
             **kwargs):
         """
@@ -72,6 +73,15 @@ class OODPipeline(BasePipeline):
         hyperparameters_dir: Optional(str)
             Directory with saved hyperparameters in a json file. See (HyperparameterTuner). If no directory is provided,
             uses the default values.
+        hyperparameters: Optional(list)
+            A nesteddictionary with hyperparameters for inititialization and training of models:
+            {
+             "init": { "Flow": {...},  "AE": {...}}
+             "train":{ "Flow": {...},  "AE": {...}}
+             }
+
+            When both "hyperparameters_dir" and "hyperparameters" are provided,
+            only "hyperparameters_dir" will be selected.
         n_trials: int
             Number of independent initializations to run. Each run saves trained models.
         kwargs:
@@ -85,7 +95,8 @@ class OODPipeline(BasePipeline):
 
         print("--- OOD Pipeline ---")
         print("1/2 Fitting novelty estimators...")
-        self._fit(X_train=X_train, y_train=y_train, n_trials=n_trials, hyperparameters_dir=hyperparameters_dir)
+        self._fit(X_train=X_train, y_train=y_train, n_trials=n_trials,
+                  hyperparameters_dir=hyperparameters_dir, hyperparameters=hyperparameters)
 
         print("2/2 Scoring in-domain data...")
         self.in_domain_scores = self._score_in_domain(X_test)
