@@ -1,8 +1,9 @@
+import os
+import json
 from collections import defaultdict
 from typing import Optional
 
 import pandas as pd
-from selecting_OOD_detector.pipeline.base import BasePipeline
 from selecting_OOD_detector.utils.scores_metrics import (score_dataset,
                                                          get_ood_aucs_score_for_all_models,
                                                          average_values_in_nested_dict,
@@ -11,9 +12,11 @@ from selecting_OOD_detector.utils.scores_metrics import (score_dataset,
 from selecting_OOD_detector.utils.general import check_and_convert_dfs_to_numpy
 from selecting_OOD_detector.utils.plotting import plot_heatmap, plot_scores_boxplot, plot_scores_distr
 from selecting_OOD_detector.models.novelty_estimators_info import SCORING_FUNCTIONS
+from selecting_OOD_detector.utils.model_training import get_novelty_estimators
 
 
-class OODPipeline(BasePipeline):
+
+class OODPipeline():
     """
     Pipeline to fit novelty estimators on in-distribution data and evaluate novelty of Out-of-Distribution (OOD)
     groups.
@@ -46,16 +49,18 @@ class OODPipeline(BasePipeline):
                 Define which models to train, e.g. {"PPCA", "LOF", "VAE"}. If selection is not provided, all available
                 models are used.
         """
-        super().__init__(**kwargs)
         self.in_domain_scores = defaultdict(dict)
         self.out_domain_scores = defaultdict(dict)
         self.feature_names = None
 
+        self.model_selection = kwargs.get("model_selection")
+        self.novelty_estimators = {}
+
     def fit(self,
             X_train,
             X_test,
+            hyperparameters: Optional[list] = None,
             hyperparameters_dir: Optional[str] = None,
-            n_trials: int = 5,
             **kwargs):
         """
         Fits models on training data with n_trials different runs.  Novelty estimators from each run are stored
@@ -80,15 +85,69 @@ class OODPipeline(BasePipeline):
         """
         y_train = kwargs.get("y_train", None)
 
-        assert list(X_train.columns) == list(X_test.columns), "Train and test data have different features!"
-        self.feature_names = list(X_train.columns)
+        if (type(X_train) == pd.DataFrame or type(X_train) == pd.Series) \
+                and (type(X_test) == pd.DataFrame or type(X_test) == pd.Series):
 
-        print("--- OOD Pipeline ---")
-        print("1/2 Fitting novelty estimators...")
-        self._fit(X_train=X_train, y_train=y_train, n_trials=n_trials, hyperparameters_dir=hyperparameters_dir)
+                assert list(X_train.columns) == list(X_test.columns), "Train and test data have different features!"
+                self.feature_names = list(X_train.columns)
 
-        print("2/2 Scoring in-domain data...")
+
+        self._fit(X_train=X_train,
+                  y_train=y_train,
+                  n_trials=1,
+                  hyperparameters=hyperparameters,
+                  hyperparameters_dir=hyperparameters_dir)
+
         self.in_domain_scores = self._score_in_domain(X_test)
+
+
+    def _fit(self,
+             X_train: pd.DataFrame,
+             y_train: pd.DataFrame = None,
+             n_trials: int = 1,
+             hyperparameters: dir = None,
+             hyperparameters_dir: Optional[str] = None
+             ):
+        """
+        Fits models on training data with n_trials different runs. Returns a nested dictionary with keys
+        being the trial number.
+        """
+
+        if hyperparameters is not None:
+            hyperparameters_init, hyperparameters_train = hyperparameters["init"], hyperparameters["train"]
+
+        elif hyperparameters_dir is not None:
+            hyperparameters_init, hyperparameters_train = self._load_hyperparameters(path=hyperparameters_dir)
+
+        else:
+            raise UserWarning("Please provide hyperparameters for the OOD models.")
+
+        for i in range(n_trials):
+            self.novelty_estimators[i] = \
+                get_novelty_estimators(X_train=X_train,
+                                       y_train=y_train,
+                                       model_selection=self.model_selection,
+                                       hyperparameters_init=hyperparameters_init,
+                                       hyperparameters_train=hyperparameters_train)
+
+    @staticmethod
+    def _load_hyperparameters(path: Optional[str] = None):
+        """
+        Loads json files of hyperparameters. If no path is provided, loads default hyperparameters saved in
+        data/hyperparameters/default.
+        """
+
+        if path is None:
+            path = "../data/hyperparameters/default/"
+
+        with open(os.path.join(path, "init.json"), 'rb') as file:
+            hyperparameters_init = json.load(file)
+
+        with open(os.path.join(path, "train.json"), 'rb') as file:
+            hyperparameters_train = json.load(file)
+
+        return hyperparameters_init, hyperparameters_train
+
 
     def evaluate_ood_groups(self,
                             ood_groups: dict,
@@ -192,18 +251,21 @@ class OODPipeline(BasePipeline):
 
         auc_scores = self.get_auc_scores(ood_groups_selections=ood_groups_selections,
                                          return_averaged=show_stderr)
-        if not show_stderr:
-            # annots = get_mean_stderr_annots_in_nested_dict(auc_scores)
-            # annots = pd.DataFrame(annots).values.T
-            # auc_scores = average_values_in_nested_dict(auc_scores)
-            # plot_fmt = "s"
 
-            annots = True
-            plot_fmt = ".2g"
+        annots = True
+        plot_fmt = ".2g"
 
-        else:
-            annots = True
-            plot_fmt = ".2g"
+        # if not show_stderr:
+        #     # annots = get_mean_stderr_annots_in_nested_dict(auc_scores)
+        #     # annots = pd.DataFrame(annots).values.T
+        #     # auc_scores = average_values_in_nested_dict(auc_scores)
+        #     # plot_fmt = "s"
+        #     annots = True
+        #     plot_fmt = ".2g"
+        #
+        # else:
+        #     annots = True
+        #     plot_fmt = ".2g"
 
         plot_df = pd.DataFrame(auc_scores)
 
