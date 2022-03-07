@@ -51,6 +51,7 @@ import pandas as pd
 import numpy as np
 
 n_features = 15
+
 # Define training and testing in-distribution data
 X_train = pd.DataFrame(np.random.rand(80, n_features))
 X_test = pd.DataFrame(np.random.rand(20, n_features))
@@ -59,8 +60,10 @@ X_test = pd.DataFrame(np.random.rand(20, n_features))
 X_under18 = pd.DataFrame(np.random.rand(12, n_features))
 X_covid = pd.DataFrame(np.random.rand(7, n_features))
 
-ood_groups = {"Patients under 18 years": X_under18,
-			  "COVID-19 patients": X_covid}
+ood_groups = {
+    "Patients under 18 years": X_under18,
+    "COVID-19 patients": X_covid
+}
 			  
 ```
 
@@ -106,6 +109,7 @@ from sklearn.model_selection import train_test_split
 
 n_features = 32
 n_samples = 150
+
 X = pd.DataFrame(np.random.rand(n_samples, n_features))
 y = np.random.binomial(n=1, p=0.95, size=[n_samples])
 
@@ -129,12 +133,12 @@ Run the hyperparameter search with the HyperparameterTuner. Note that
 intermediate results can be saved during the run:
 
 ```py
-hyperparm_tuner.run_hyperparameter_search(X_train = X_train,
-                                          X_val=X_val,
-                                          y_train=y_train,
-                                          y_val=y_val,
-                                          save_intermediate_scores=True,
-                                          save_dir="hyperparameter_search_test/")
+hyperparm_tuner.run_hyperparameter_search(
+  X_train = X_train,
+  X_val=X_val,
+  y_train=y_train,
+  y_val=y_val,
+)
 ```
 
 
@@ -181,7 +185,7 @@ You can save these best parameters and use them in the OODPipeline
 later:
 
 ```py
-tuner.save_best_parameters_as_json(save_dir = "../data/hyperparameters/custom/")
+hyperparm_tuner.save_best_parameters_as_json(save_dir = "../data/hyperparameters/custom/")
 ```
 
 ```py
