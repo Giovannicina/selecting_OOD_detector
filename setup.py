@@ -12,6 +12,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url='https://github.com/Giovannicina/selecting_OOD_detector',
     license='MIT',
-    packages=['toolbox'],
+    packages=['selecting_ood_detector'],
     install_requires=['requests'],
 )
