@@ -31,11 +31,13 @@ setup(
     description='Out-of-distribution detection for Tabular Data',
     long_description=README,
     long_description_content_type="text/markdown",
-    version="0.1.2",
-    packages=find_packages(),
+    version="0.1.3",
+
+    package_dir={'': 'selecting_OOD_detector'},
+    py_modules=['selecting_OOD_detector'],
+    packages=['selecting_OOD_detector'],
     author='Pacmed BV',
-    url="https://github.com/y0ast/DUE",
-    # author_email="joost.van.amersfoort@cs.ox.ac.uk",
-    # install_requires=["gpytorch>=1.2.1", "torch", "scikit-learn"],
+    url="https://github.com/Giovannicina/selecting_OOD_detector",
+
     python_requires=">=3.6",
 )
