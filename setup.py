@@ -35,9 +35,12 @@ setup(
 
     # package_dir={'': 'selecting_OOD_detector'},
     py_modules=['selecting_OOD_detector'],
-    packages=['selecting_OOD_detector'],
+    packages=find_packages(),
     author='Pacmed BV',
     url="https://github.com/Giovannicina/selecting_OOD_detector",
 
     python_requires=">=3.6",
 )
+
+# print(find_packages())
+# print(find_packages('selecting_OOD_detector'))
