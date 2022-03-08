@@ -15,7 +15,7 @@ This repository allows you to test and tailor OOD detection methods to a custom 
   * [About](#about)
     + [Why is OOD detection important?](#why-is-ood-detection-important)
     + [Implemented OOD detection methods](#implemented-ood-detection-methods)
-  * [Usage](#usage)
+<!--   * [Usage](#usage) -->
   * [Examples](#examples)
     + [Detecting Clinically Relevant OOD Groups](#detecting-clinically-relevant-ood-groups)
     + [Fine-Tuning Hyperparmeters on a New Dataset](#fine-tuning-hyperparmeters-on-a-new-dataset)
@@ -40,31 +40,12 @@ Machine learning models have achieved great performance on a variety of tasks. H
 
 <br>
 
-## Usage
-<!-- 
+<!-- ## Usage
+
     git clone https://github.com/Giovannicina/selecting_OOD_detector.git 
     cd selecting_OOD_detector
     pip install -r requirements.txt
-    
-Append a path to the directory:
-
-```py
-sys.path.append(os.getcwd())
-```
-	
-Import OOD pipeline and apply to your data as shown in the example
-above: -->
-
-```
-pip install git+https://github.com/Giovannicina/selecting_OOD_detector.git
-```
-
-```py
-from selecting_OOD_detector.pipeline.ood_pipeline import OODPipeline
-```
-
-<br>
-<br>
+ -->
 
 ## Examples
 ### Detecting Clinically Relevant OOD Groups
@@ -249,5 +230,7 @@ oodpipe.fit(X_train, X_test=X_test, hyperparameters_dir="../data/hyperparameters
 	}
 
 ```
+
+
 
 
