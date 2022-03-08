@@ -33,7 +33,7 @@ setup(
     long_description_content_type="text/markdown",
     version="0.1.3",
 
-    package_dir={'': 'selecting_OOD_detector'},
+    # package_dir={'': 'selecting_OOD_detector'},
     py_modules=['selecting_OOD_detector'],
     packages=['selecting_OOD_detector'],
     author='Pacmed BV',
