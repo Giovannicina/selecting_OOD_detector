@@ -31,7 +31,7 @@ setup(
     description='Out-of-distribution detection for Tabular Data',
     long_description=README,
     long_description_content_type="text/markdown",
-    version="0.1",
+    version="0.1.1g",
     packages=find_packages(),
     author='Pacmed BV',
     url="https://github.com/y0ast/DUE",
