@@ -31,7 +31,7 @@ setup(
     description='Out-of-distribution detection for Tabular Data',
     long_description=README,
     long_description_content_type="text/markdown",
-    version="0.1.3",
+    version="0.1.31",
 
     # package_dir={'': 'selecting_OOD_detector'},
     py_modules=['selecting_OOD_detector'],
